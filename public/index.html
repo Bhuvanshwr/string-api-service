@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>String API Test</title>
+</head>
+
+<body>
+    <h1>String Operations</h1>
+
+    <!-- Stringinate Section -->
+    <div>
+        <h2>Process String</h2>
+        <input type="text" id="stringInput" placeholder="Enter a string">
+        <button onclick="stringinate()">Process</button>
+        <div id="stringinateResult">
+            <pre></pre>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Stats Section -->
+    <div>
+        <h2>Get Statistics</h2>
+        <button onclick="getStats()">Get Stats</button>
+        <div id="statsResult">
+            <pre></pre>
+        </div>
+    </div>
+
+    <script>
+        // Basic auth credentials
+        const username = 'admin';
+        const password = 'password';
+        const authHeader = 'Basic ' + btoa(username + ':' + password);
+
+        function stringinate() {
+            const input = document.getElementById('stringInput').value;
+
+            fetch('http://localhost:8080/stringinate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authHeader
+                },
+                body: JSON.stringify({ input })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.querySelector('#stringinateResult pre').textContent =
+                        JSON.stringify(data, null, 2);
+                
+                    getStats();
+                })
+                .catch(error => {
+                    document.querySelector('#stringinateResult pre').textContent =
+                        'Error: ' + error.message;
+                });
+        }
+
+        function getStats() {
+            fetch('http://localhost:8080/stats', {
+                headers: {
+                    'Authorization': authHeader
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    document.querySelector('#statsResult pre').textContent =
+                        JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.querySelector('#statsResult pre').textContent =
+                        'Error: ' + error.message;
+                });
+        }
+
+        // Add enter key support for input field
+        document.getElementById('stringInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                stringinate();
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -16,6 +16,7 @@ app.use(rateLimit({
     max: 200, // Limit each IP to 30 requests per minute
 }));
 
+app.use('/ui', express.static('public'));
 app.use('/', homeRoute);
 app.use('/', securityMiddleware.basicAuth, stringinatorRoute);
 
