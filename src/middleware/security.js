@@ -1,4 +1,5 @@
 const logger = require('../utils/logger');
+const db = require('../utils/db');
 const basicAuth = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     if (!authHeader || !authHeader.startsWith('Basic ')) {
@@ -9,15 +10,18 @@ const basicAuth = (req, res, next) => {
     const credentials = Buffer.from(base64Credentials, 'base64').toString();
     const [username, password] = credentials.split(':');
 
-    const validUsername = process.env.STRING_SERVICE_USERNAME || 'admin';
-    const validPassword = process.env.STRING_SERVICE_PASSWORD || 'password';
-
-    if (username === validUsername && password === validPassword) {
-        logger.debug(`user authneticated: ${username}`);
-        return next();
-    } else {
-        logger.warn(`Failed login attempt for user: ${username}`);
-        return res.status(401).send('Invalid credentials.');
+    try {
+        const data = db.find('users', { username: username })
+        if (data[0]?.password !== password) {
+            logger.warn(`Failed login attempt for user: ${username}`);
+            return res.status(401).send('Invalid credentials.');
+        }
+        logger.debug(`user authenticated: ${username}`);
+        next();
+    }
+    catch (err) {
+        logger.error('Error during authentication:', err);
+        res.status(500).send('Internal Server Error');
     }
 };
 

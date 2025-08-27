@@ -16,6 +16,7 @@ function getStringinateResponse(input) {
     const { char, count } = findMostFrequentChar(input);
 
     return {
+        timestamp: new Date().toISOString(),
         input: input,
         length: input.length,
         mostFrequentCharacter: {
@@ -58,6 +59,7 @@ function getStatsResponse() {
     const inputsObject = Object.fromEntries(inputCount);
     logger.debug(`Stats computed: mostPopularString="${mostPopularString}", longestString="${longestString}"`);
     return {
+        timestamp: new Date().toISOString(),
         inputs: inputsObject,
         most_popular: mostPopularString,
         longest_input_received: longestString
